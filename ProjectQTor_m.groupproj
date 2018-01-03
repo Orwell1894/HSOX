@@ -1,0 +1,36 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{3FD07108-2A39-45FA-B1F3-B5D36B000087}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="HSOX.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="HSOX">
+        <MSBuild Projects="HSOX.dproj"/>
+    </Target>
+    <Target Name="HSOX:Clean">
+        <MSBuild Projects="HSOX.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="HSOX:Make">
+        <MSBuild Projects="HSOX.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="HSOX"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="HSOX:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="HSOX:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
