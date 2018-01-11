@@ -67,7 +67,6 @@ type
     GlowValue: TGlowEffect;
     btn_Research: TSpeedButton;
     GlowEffect1: TGlowEffect;
-    Button1: TButton;
     btn_exit: TSpeedButton;
     LayoutBottom: TLayout;
     LogBox: TListBox;
@@ -83,9 +82,7 @@ type
     procedure MultiView1Shown(Sender: TObject);
     procedure MultiView1Hidden(Sender: TObject);
     procedure MultiView1StartShowing(Sender: TObject);
-    procedure SpeedButton7Click(Sender: TObject);
     procedure btn_exitClick(Sender: TObject);
-    procedure IncCountCheckSocks(LinkIndex: Integer);
     procedure btn_ResearchClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
@@ -105,27 +102,23 @@ implementation
 
 {$R *.fmx}
 
+//Ð£Ð±Ð¸Ñ€Ð°ÐµÑ‚ ÐºÐ¾Ð²Ñ‹Ñ‡ÐºÐ¸
 function UnQuote(S: String): String;
 begin
   Result :=Copy(S,2,Length(S)-2);
 end;
 
-procedure TWHSOX.IncCountCheckSocks(LinkIndex: Integer);
-Var S,dS: String;
-    i: byte;
-begin
-  S :=LogBox.ItemByIndex(LinkIndex).ItemData.Detail;
-  dS :=Copy(S,Pos(S,'/')+1,Length(S)-Pos(S,'/'));
-  S :=Copy(S,1,Pos(S,'/')-1);
-  i :=(StrToInt(S))+1;
-  LogBox.ItemByIndex(LinkIndex).ItemData.Detail :=IntToStr(i)+'/'+dS;
-end;
-
+//Ð’Ñ‹Ñ…Ð¾Ð´
 procedure TWHSOX.btn_exitClick(Sender: TObject);
 begin
+//  {$IFDEF ANDROID}
+//  SharedActivity.finish;
+//  MainActivity.finish;
+//  {$ENDIF}
   Close;
 end;
 
+//ÐŸÑ€Ð¾Ð´Ð¾Ð»Ð¶ÐµÐ½Ð¸Ðµ Ð¿Ð¾Ð¸ÑÐºÐ°
 procedure TWHSOX.btn_ResearchClick(Sender: TObject);
 Var i: Word;
 begin
@@ -136,8 +129,8 @@ begin
   Logo.Visible :=True;
   FindedSocks :=False;
   TimeLeft :=20;
-  ProgressValue.Text:=('ïðèáëèçèòåëüíîå âðåìÿ ïîèñêà íîñêà '+IntToStr(TimeLeft)+' ñåêóíä');
-  LabelBottom.Text :='Ïîèñê íîñêà ïðîäîëæàåòñÿ ...';
+  ProgressValue.Text:=('Ð¿Ñ€Ð¸Ð±Ð»Ð¸Ð·Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾Ðµ Ð²Ñ€ÐµÐ¼Ñ Ð¿Ð¾Ð¸ÑÐºÐ° Ð½Ð¾ÑÐºÐ° '+IntToStr(TimeLeft)+' ÑÐµÐºÑƒÐ½Ð´');
+  LabelBottom.Text :='ÐŸÐ¾Ð¸ÑÐº Ð½Ð¾ÑÐºÐ° Ð¿Ñ€Ð¾Ð´Ð¾Ð»Ð¶Ð°ÐµÑ‚ÑÑ ...';
   Timer1.Enabled :=True;
   For i:=0 to LogBox.Items.Count-1 do
     if LogBox.ItemByIndex(i).Visible then
@@ -149,26 +142,25 @@ end;
 
 procedure TWHSOX.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-//  Link.Free;
-//  SParser.Free;
 end;
 
+//ÐŸÐ¾Ñ‚Ð¾Ðº Ð¿Ð¾Ð¸ÑÐºÐ° ÑÐ°Ð¹Ñ‚Ð¾Ð² Ñ Ð¿Ñ€Ð¾ÐºÑÐ¸ Ð¸ Ð¿Ð°Ñ€ÑÐ¸Ð½Ð³ Ð¿Ñ€Ð¾ÐºÑÐ¸ Ð½Ð° ÑÐ°Ð¹Ñ‚Ð°Ñ…
 procedure TWHSOX.StartParsing;
 begin
   TThread.CreateAnonymousThread(procedure
       Var i: Word;
       begin
         While not ParsingLink do
-          begin
+          try
             Sleep(1000);
             Case RunLevel of
-                //Óðîâåíü ïàðñèíãà ñàéòîâ ñ ïðîêñè
+                //Ð£Ñ€Ð¾Ð²ÐµÐ½ÑŒ Ð¿Ð°Ñ€ÑÐ¸Ð½Ð³Ð° ÑÐ°Ð¹Ñ‚Ð¾Ð² Ñ Ð¿Ñ€Ð¾ÐºÑÐ¸
                 0:  try
                       If not ParsedLinks then If not ParsingLinks then ParserLinks
                         else else inc(RunLevel);
                     except
                     end;
-                //Óðîâåíü ïàðñèíãà ïðîêñè ñ ñàéòîâ
+                //Ð£Ñ€Ð¾Ð²ÐµÐ½ÑŒ Ð¿Ð°Ñ€ÑÐ¸Ð½Ð³Ð° Ð¿Ñ€Ð¾ÐºÑÐ¸ Ñ ÑÐ°Ð¹Ñ‚Ð¾Ð²
                 1:  try
                     If not ParsedLink then
                       begin
@@ -185,10 +177,12 @@ begin
                     except
                     end;
               End;
+          except
           end;
     end).Start;
 end;
 
+//ÐžÑ‚Ñ‡ÐµÑ‚ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð¸ Ð¿Ð¾Ð¸ÑÐºÐ° Ð¿Ñ€Ð¾ÐºÑÐ¸ Ð¸ Ð¿Ñ€Ð¸Ð¼ÐµÐ½ÐµÐ½Ð¸Ðµ ÑÑ„Ñ„ÐµÐºÑ‚Ð¾Ð² Ð¿Ð¾ÑÐ»Ðµ Ñ‚Ð¾Ð³Ð¾, ÐºÐ°Ðº Ð½Ð°Ð¹Ð´ÐµÐ½ Ñ€Ð°Ð±Ð¾Ñ‡Ð¸Ð¹ Ð¿Ñ€Ð¾ÐºÑÐ¸
 procedure TWHSOX.Timer1Timer(Sender: TObject);
 Var i: Word;
     Svc: IFMXClipboardService;
@@ -199,7 +193,7 @@ begin
     begin
       dec(TimeLeft);
       if TimeLeft=0 then inc(TimeLeft,10);
-      ProgressValue.Text:=('ïðèáëèçèòåëüíîå âðåìÿ ïîèñêà íîñêà '+IntToStr(TimeLeft)+' ñåêóíä');
+      ProgressValue.Text:=('Ð¿Ñ€Ð¸Ð±Ð»Ð¸Ð·Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾Ðµ Ð²Ñ€ÐµÐ¼Ñ Ð¿Ð¾Ð¸ÑÐºÐ° Ð½Ð¾ÑÐºÐ° '+IntToStr(TimeLeft)+' ÑÐµÐºÑƒÐ½Ð´');
       LogBox.UpdateEffects;
       LogBox.Repaint;
     end else
@@ -210,8 +204,8 @@ begin
       S :=Sox.IP+':'+Sox.PORT;
       If TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, Svc) then
         Svc.SetClipboard(S);
-      ProgressValue.Text :='íîñîê òèïà '+Sox.STYPE+' ñêîïèðîâàí â áóôôåð îáìåíà !';
-      LabelBottom.Text :='áóôôåð îáìåíà: '+Sox.IP+':'+Sox.PORT+' ('+Sox.STYPE+')';
+      ProgressValue.Text :='Ð½Ð¾ÑÐ¾Ðº Ñ‚Ð¸Ð¿Ð° '+Sox.STYPE+' ÑÐºÐ¾Ð¿Ð¸Ñ€Ð¾Ð²Ð°Ð½ Ð² Ð±ÑƒÑ„Ñ„ÐµÑ€ Ð¾Ð±Ð¼ÐµÐ½Ð° !';
+      LabelBottom.Text :='Ð±ÑƒÑ„Ñ„ÐµÑ€ Ð¾Ð±Ð¼ÐµÐ½Ð°: '+Sox.IP+':'+Sox.PORT+' ('+Sox.STYPE+')';
       R.RMathes :=R.RegEx.Matches(Sox.PAGE, RE_GL_INFO);
       InfoBox.Items.Clear;
       If R.RMathes.Count>0 then
@@ -233,12 +227,11 @@ begin
     end;
 end;
 
+//Ð¡Ð¾Ð·Ð´Ð°Ð½Ð¸Ðµ Ñ„Ð¾Ñ€Ð¼Ñ‹
 procedure TWHSOX.FormCreate(Sender: TObject);
 Var i: Word;
 begin
-//  Link :=TLink.Create(nil);
   For i:=1 to 10 do Links[i] :=TLink.Create(nil);
-//  SParser :=TParser.Create;
   TimeLeft :=30;  RunLevel :=0;  CountLink :=0;  n_google :=0;
   ParsedLinks :=False; ParsingLinks :=False;
   ParsedLink :=False; ParsingLink :=False;
@@ -249,58 +242,49 @@ end;
 
 procedure TWHSOX.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
 begin
-  if (TabControl1.Index>0) and (Key = vkHardwareBack) then
-    begin
-        PreviousTabAction1.ExecuteTarget(self);
-        Key := 0;
-    end;
+//  if (TabControl1.Index>0) and (Key = vkHardwareBack) then
+//    begin
+//        PreviousTabAction1.ExecuteTarget(self);
+//        Key := 0;
+//    end;
 end;
 
 procedure TWHSOX.GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
 begin
-  case EventInfo.GestureID of
-    sgiLeft:
-      begin
-        if TabControl1.ActiveTab <> TabControl1.Tabs[TabControl1.TabCount-1] then
-          NextTabAction1.ExecuteTarget(Self);
-        Handled := True;
-      end;
-    sgiRight:
-      begin
-        if TabControl1.ActiveTab <> TabControl1.Tabs[0] then
-          PreviousTabAction1.ExecuteTarget(Self);
-        Handled := True;
-      end;
-  end;
+//  case EventInfo.GestureID of
+//    sgiLeft:
+//      begin
+//        if TabControl1.ActiveTab <> TabControl1.Tabs[TabControl1.TabCount-1] then
+//          NextTabAction1.ExecuteTarget(Self);
+//        Handled := True;
+//      end;
+//    sgiRight:
+//      begin
+//        if TabControl1.ActiveTab <> TabControl1.Tabs[0] then
+//          PreviousTabAction1.ExecuteTarget(Self);
+//        Handled := True;
+//      end;
+//  end;
 end;
 
 procedure TWHSOX.MultiView1Hidden(Sender: TObject);
 begin
-  SpeedButton3.StyleLookup :='arrowrighttoolbutton';
+//  SpeedButton3.StyleLookup :='arrowrighttoolbutton';
 //  MultiView1.MasterButton :=SpeedButton4;
-  Panel2.Visible :=False;
+//  Panel2.Visible :=False;
 end;
 
 procedure TWHSOX.MultiView1Shown(Sender: TObject);
 begin
-  SpeedButton3.StyleLookup :='arrowlefttoolbutton';
-  SpeedButton3.ResetFocus;
+//  SpeedButton3.StyleLookup :='arrowlefttoolbutton';
+//  SpeedButton3.ResetFocus;
 end;
 
 procedure TWHSOX.MultiView1StartShowing(Sender: TObject);
 begin
-  Panel2.Visible :=True;
-  MultiView1.Size.Width :=330;
-  MultiView1.MasterButton :=SpeedButton3;
-end;
-
-procedure TWHSOX.SpeedButton7Click(Sender: TObject);
-begin
-//  {$IFDEF ANDROID}
-//  SharedActivity.finish;
-//  MainActivity.finish;
-  Close;
-//  {$ENDIF}
+//  Panel2.Visible :=True;
+//  MultiView1.Size.Width :=330;
+//  MultiView1.MasterButton :=SpeedButton3;
 end;
 
 end.

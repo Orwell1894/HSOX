@@ -6591,7 +6591,7 @@ object WHSOX: TWHSOX
             Margins.Top = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Position.X = 54.600006103515630000
+            Position.X = 54.600006103515620000
             Position.Y = 8.000000000000000000
             Size.Width = 107.000000000000000000
             Size.Height = 44.000000000000000000
@@ -6814,7 +6814,7 @@ object WHSOX: TWHSOX
             Margins.Top = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Position.X = 87.600006103515630000
+            Position.X = 87.600006103515620000
             Position.Y = 8.000000000000000000
             Size.Width = 74.000000000000000000
             Size.Height = 19.000000000000000000
@@ -6886,7 +6886,7 @@ object WHSOX: TWHSOX
             Margins.Top = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Position.X = 87.600006103515630000
+            Position.X = 87.600006103515620000
             Position.Y = 78.000000000000000000
             Size.Width = 74.000000000000000000
             Size.Height = 19.000000000000000000
@@ -6922,7 +6922,7 @@ object WHSOX: TWHSOX
             Margins.Top = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Position.X = 79.600006103515630000
+            Position.X = 79.600006103515620000
             Position.Y = 113.000000000000000000
             Size.Width = 82.000000000000000000
             Size.Height = 19.000000000000000000
@@ -6958,7 +6958,7 @@ object WHSOX: TWHSOX
             Margins.Top = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Position.X = 55.600006103515630000
+            Position.X = 55.600006103515620000
             Position.Y = 148.000000000000000000
             Size.Width = 106.000000000000000000
             Size.Height = 19.000000000000000000
@@ -7184,11 +7184,6 @@ object WHSOX: TWHSOX
         RowSpan = 2
       end
       item
-        Column = 0
-        Control = Button1
-        Row = -1
-      end
-      item
         Column = 2
         Control = btn_exit
         Row = 0
@@ -7224,7 +7219,7 @@ object WHSOX: TWHSOX
         Value = 50.000000000000000000
       end
       item
-        Value = 87.968787430761580000
+        Value = 87.968787430761570000
       end
       item
         SizeStyle = Absolute
@@ -7255,7 +7250,7 @@ object WHSOX: TWHSOX
         TabOrder = 1
         object GlowEffect2: TGlowEffect
           StyleName = 'GlowValue'
-          Softness = 0.400000005960464500
+          Softness = 0.400000005960464400
           GlowColor = claSkyblue
           Opacity = 0.600000023841857900
           Trigger = 'IsVisible=true'
@@ -7276,7 +7271,7 @@ object WHSOX: TWHSOX
         StyledSettings = []
         Position.X = 67.000000000000000000
         Size.Width = 300.000000000000000000
-        Size.Height = 95.237365722656250000
+        Size.Height = 95.237365722656260000
         Size.PlatformDefault = False
         TextSettings.Font.Family = 'Trebuchet MS'
         TextSettings.Font.Size = 16.000000000000000000
@@ -7289,7 +7284,7 @@ object WHSOX: TWHSOX
         TabOrder = 0
         object GlowValue: TGlowEffect
           StyleName = 'GlowValue'
-          Softness = 0.400000005960464500
+          Softness = 0.400000005960464400
           GlowColor = claSkyblue
           Opacity = 0.600000023841857900
           Trigger = 'IsVisible=true'
@@ -7300,7 +7295,7 @@ object WHSOX: TWHSOX
         Margins.Right = 180.000000000000000000
         Position.X = 90.000000000000000000
         Size.Width = 73.000000000000000000
-        Size.Height = 95.237365722656250000
+        Size.Height = 95.237365722656260000
         Size.PlatformDefault = False
         StyleLookup = 'searcheditbutton'
         Text = 'btn_Research'
@@ -7308,21 +7303,12 @@ object WHSOX: TWHSOX
         OnClick = btn_ResearchClick
         object GlowEffect1: TGlowEffect
           StyleName = 'GlowValue'
-          Softness = 0.400000005960464500
+          Softness = 0.400000005960464400
           GlowColor = claSkyblue
           Opacity = 0.600000023841857900
           Trigger = 'IsVisible=true'
         end
       end
-    end
-    object Button1: TButton
-      Anchors = []
-      Position.X = 3.500000000000000000
-      Position.Y = 28.000000000000000000
-      StyleLookup = 'searcheditbutton'
-      TabOrder = 8
-      Text = 'Button1'
-      Visible = False
     end
     object btn_exit: TSpeedButton
       StaysPressed = True
@@ -7339,7 +7325,7 @@ object WHSOX: TWHSOX
       Size.Width = 369.000000000000000000
       Size.Height = 219.921966552734400000
       Size.PlatformDefault = False
-      TabOrder = 11
+      TabOrder = 10
       object LogBox: TListBox
         Align = Client
         Margins.Left = 10.000000000000000000
@@ -7366,11 +7352,11 @@ object WHSOX: TWHSOX
       Size.Width = 209.000000000000000000
       Size.Height = 150.000000000000000000
       Size.PlatformDefault = False
-      TabOrder = 10
+      TabOrder = 9
       object Logo: TLabel
         Align = Client
         RotationCenter.X = 0.300000011920929000
-        RotationCenter.Y = 0.800000011920929000
+        RotationCenter.Y = 0.800000011920928900
         Size.Width = 209.000000000000000000
         Size.Height = 150.000000000000000000
         Size.PlatformDefault = False
@@ -7416,6 +7402,11 @@ object WHSOX: TWHSOX
       TabOrder = 1
     end
   end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    Left = 8
+    Top = 8
+  end
   object MultiView1: TMultiView
     Touch.GestureManager = GestureManager1
     OnGesture = GestureDone
@@ -7427,12 +7418,12 @@ object WHSOX: TWHSOX
     PopoverOptions.TintColor = claYellow
     Mode = NavigationPane
     NavigationPaneOptions.CollapsedWidth = 0.000000000000000000
-    ShadowOptions.Opacity = 0.400000005960464500
+    ShadowOptions.Opacity = 0.400000005960464400
     OnStartShowing = MultiView1StartShowing
     OnShown = MultiView1Shown
     OnHidden = MultiView1Hidden
     Size.Width = 250.000000000000000000
-    Size.Height = 495.000000000000000000
+    Size.Height = 50.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
     object Panel2: TPanel
@@ -7468,10 +7459,5 @@ object WHSOX: TWHSOX
     object PreviousTabAction1: TPreviousTabAction
       Category = 'Tab'
     end
-  end
-  object Timer1: TTimer
-    OnTimer = Timer1Timer
-    Left = 8
-    Top = 8
   end
 end
