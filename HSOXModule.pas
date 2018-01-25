@@ -100,6 +100,7 @@ function UpDir(S: String; level: byte=1): String;
 procedure ParserLinks(Page : String);
 //Запуск потока поиска проксей на сайте
 procedure ParserSocksInLinks(IndexLink: Word);
+function ParseSox(Page: String; IndexLink: Integer): String;
 //Запуск потока проверки проксей с сайта
 procedure CheckProxy(LinkIndex: Integer);
 //Загружаем настройки из param.qtr
@@ -264,6 +265,46 @@ begin
     end).Start;
 end;
 
+function ParseSox(Page: String; IndexLink: Integer): String;
+Var i,j: Word;
+        R: TRegExp;
+        dSocks: TSocks;
+begin
+  With R do
+    try
+      RMathes :=RegEx.Matches(Page,RE_GL4);
+      if RMathes.Count>0 then
+        begin
+          //Увеличиваем кол-во рабочих ссылок
+          inc(CountLinks);
+          Links[IndexLink].CountSocks :=RMathes.Count;
+          j :=Round((RMathes.Count div 5)*5-1);
+          //Парсим носки с ссылки
+          For i:=0 to j do
+            begin
+              dSocks.IP :=RegEx.Match(RMathes[i].Value,RE_GL_IP).Value;
+              dSocks.PORT :=RegEx.Match(RMathes[i].Value,RE_GL_PORT).Value;
+              Links[IndexLink].AddS(dSocks.IP, dSocks.PORT);
+            end;
+          //Перемешиваем все прокси для рандомизации
+          Links[IndexLink].SocksRandomize;
+          Links[IndexLink].PosSearch :=0;
+          //Запускаем поток поиска прокси с сайта
+          CheckProxy(IndexLink);
+          try
+            WHSOX.LogBox.ItemByIndex(IndexLink).ItemData.Detail :=IntToStr(RMathes.Count);
+          except
+          end;
+        end else try
+          //Скрываем сайт, если прокси не найдены
+          WHSOX.LogBox.ItemByIndex(IndexLink).Visible :=False;
+        except
+        end;
+//        ParsedLink :=True;
+//        ParsingLinks :=False;
+    except
+    end;
+end;
 //Запуск потока поиска проксей на текущем сайте
 procedure ParserSocksInLinks(IndexLink: Word);
 begin
@@ -361,12 +402,10 @@ begin
                           For i:=0 to RMathes.Count-1 do
                           begin
                             dS :=RMathes.Item[i].Value;
-  //                          Links[i+1].Url :=RegEx.Match(dS, RE_SS_DUCK2).Value;
                             WHSOX.LogBox.Items.Add(RegEx.Match(dS, RE_SS_DUCK2).Value);
-  //                          WHSOX.LogBox.ItemByIndex(WHSOX.LogBox.Items.Count-1).ItemData.Detail :='.../...';
                           end;
-                          WHSOX.Memo1.Lines.Add('links parsed from duckduckgo.com');
-                        end else WHSOX.Memo1.Lines.Add('links not parsed from duckduckgo.com');
+                        end;
+                    WHSOX.Loggy('Собрано '+IntToStr(RMathes.Count)+' ссылок');
             end;
           end;
 

@@ -115,7 +115,6 @@ type
     procedure GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure MultiView1Shown(Sender: TObject);
     procedure MultiView1Hidden(Sender: TObject);
     procedure MultiView1StartShowing(Sender: TObject);
@@ -126,6 +125,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure ChromiumFMX1LoadEnd(Sender: TObject; const browser: ICefBrowser;
       const frame: ICefFrame; httpStatusCode: Integer);
+    function Loggy(S: String): String;
   private
     procedure StartParsing;
   public
@@ -143,6 +143,12 @@ var
 implementation
 
 {$R *.fmx}
+
+function TWHSOX.Loggy(S: string): String;
+begin
+  Result :=TimeToStr(Time)+'>>'+S;
+  Memo1.Lines.Add(Result);
+end;
 
 procedure ViewSource1(const src: string);
 Var source: String;
@@ -199,25 +205,13 @@ begin
 //  ChromiumFMX1.Load('https://google.com');
 end;
 
-procedure StringVisitor(const str: ustring);
-begin
-  //str is the SourceHtml
-  if not ParsedLinks then
-    begin
-      ParserLinks(str);
-    end;
-
-//  WHSOX.Memo1.Lines.Clear;
-//  WHSox.Memo1.Lines.Add(str)
-end;
-
 procedure TWHSOX.ChromiumFMX1LoadEnd(Sender: TObject;
   const browser: ICefBrowser; const frame: ICefFrame; httpStatusCode: Integer);
 Var  CefStringVisitor: ICefStringVisitor;
 begin
+  Loggy('Страница загружена, парсим ссылки');
   CefStringVisitor := TCefFastStringVisitor.Create(StringVisitor);
   WHSOX.ChromiumFMX1.Browser.MainFrame.GetSource(CefStringVisitor);
-//  Memo1.Lines.Add()
 end;
 
 procedure TWHSOX.FDConnection1BeforeConnect(Sender: TObject);
@@ -234,8 +228,14 @@ begin
   FDConnection1.Params.Values['Database']:= DBPath;
 end;
 
-procedure TWHSOX.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure StringVisitor(const str: ustring);
 begin
+  case RunLevel of
+    0:  if not ParsedLinks then ParserLinks(str);
+    1:  begin
+          ParseSox(str);
+    end;
+  end;
 end;
 
 //Поток поиска сайтов с прокси и парсинг прокси на сайтах
@@ -246,6 +246,7 @@ begin
       begin
         While not ParsingLink do
           try
+            Loggy('Запущен поток парсинга сайтов с прокси');
             Sleep(1000);
             Case RunLevel of
                 //Уровень парсинга сайтов с прокси
@@ -253,6 +254,8 @@ begin
                       If not ParsedLinks then If not ParsingLinks then
                         try
                           ParsingLinks :=True;
+                          Loggy('Загрузка страницы');
+                          Loggy('https://duckduckgo.com/?q=free+socks+5+proxy&t=h_&ia=web0');
                           ChromiumFMX1.Load('https://duckduckgo.com/?q=free+socks+5+proxy&t=h_&ia=web0')
                         finally
                         end
@@ -260,7 +263,7 @@ begin
                     except
                     end;
                 //Уровень парсинга прокси с сайтов
-                2:  try
+                1:  try
                     If not ParsedLink then
                       begin
                         If LogBox.Items.Count>0 then
@@ -269,6 +272,8 @@ begin
                             WHSOX.LabelBottom.Text :=TextL3;
                             For i:=0 to LogBox.Items.Count-1 do
                               begin
+                                Loggy('Загрузка страницы');
+                                Loggy(LogBox.Items[i]);
                                 ParserSocksInLinks(i);
                                 Sleep(50);
                               end;
@@ -329,6 +334,7 @@ end;
 procedure TWHSOX.FormCreate(Sender: TObject);
 Var i: Word;
 begin
+  Loggy('Создание формы');
   For i:=1 to 10 do Links[i] :=TLink.Create(nil);
   TimeLeft :=30;  RunLevel :=0;  CountLink :=0;  n_google :=0;
   ParsedLinks :=False; ParsingLinks :=False;
@@ -338,6 +344,7 @@ begin
   ProgressValue.Text:=('Идет поиск прокси для соединения...');
   LabelBottom.Text :='Идет поиск прокси для соединения...';
   ProgressVision.Enabled :=True;
+  Loggy('Форма создана');
 end;
 
 procedure TWHSOX.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);

@@ -11,7 +11,6 @@ object WHSOX: TWHSOX
   FormFactor.Orientations = [Portrait]
   FormFactor.Devices = []
   OnCreate = FormCreate
-  OnClose = FormClose
   OnKeyUp = FormKeyUp
   DesignerMasterStyle = 3
   object TabControl1: TTabControl
@@ -182,7 +181,7 @@ object WHSOX: TWHSOX
             Margins.Top = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Position.X = 32.600006103515630000
+            Position.X = 32.600006103515620000
             Position.Y = 8.000000000000000000
             Size.Width = 107.000000000000000000
             Size.Height = 44.000000000000000000
@@ -272,7 +271,7 @@ object WHSOX: TWHSOX
               Margins.Top = 8.000000000000000000
               Margins.Right = 8.000000000000000000
               Margins.Bottom = 8.000000000000000000
-              Position.X = 91.600006103515630000
+              Position.X = 91.600006103515620000
               Position.Y = 8.000000000000000000
               Size.Width = 48.000000000000000000
               Size.Height = 48.000000000000000000
@@ -405,7 +404,7 @@ object WHSOX: TWHSOX
             Margins.Top = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Position.X = 65.600006103515630000
+            Position.X = 65.600006103515620000
             Position.Y = 8.000000000000000000
             Size.Width = 74.000000000000000000
             Size.Height = 19.000000000000000000
@@ -441,7 +440,7 @@ object WHSOX: TWHSOX
             Margins.Top = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Position.X = 81.600006103515630000
+            Position.X = 81.600006103515620000
             Position.Y = 43.000000000000000000
             Size.Width = 58.000000000000000000
             Size.Height = 19.000000000000000000
@@ -477,7 +476,7 @@ object WHSOX: TWHSOX
             Margins.Top = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Position.X = 65.600006103515630000
+            Position.X = 65.600006103515620000
             Position.Y = 78.000000000000000000
             Size.Width = 74.000000000000000000
             Size.Height = 19.000000000000000000
@@ -513,7 +512,7 @@ object WHSOX: TWHSOX
             Margins.Top = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Position.X = 57.600006103515630000
+            Position.X = 57.600006103515620000
             Position.Y = 113.000000000000000000
             Size.Width = 82.000000000000000000
             Size.Height = 19.000000000000000000
@@ -549,7 +548,7 @@ object WHSOX: TWHSOX
             Margins.Top = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Position.X = 33.600006103515630000
+            Position.X = 33.600006103515620000
             Position.Y = 148.000000000000000000
             Size.Width = 106.000000000000000000
             Size.Height = 19.000000000000000000
@@ -831,7 +830,7 @@ object WHSOX: TWHSOX
         Value = 50.000000000000000000
       end
       item
-        Value = 87.968787430761580000
+        Value = 87.968787430761570000
       end
       item
         SizeStyle = Absolute
@@ -861,7 +860,7 @@ object WHSOX: TWHSOX
         TabOrder = 1
         object GlowEffect2: TGlowEffect
           StyleName = 'GlowValue'
-          Softness = 0.400000005960464500
+          Softness = 0.400000005960464400
           GlowColor = claSkyblue
           Opacity = 0.600000023841857900
           Trigger = 'IsVisible=true'
@@ -882,7 +881,7 @@ object WHSOX: TWHSOX
         StyledSettings = []
         Position.X = 67.000000000000000000
         Size.Width = 300.000000000000000000
-        Size.Height = 95.237365722656250000
+        Size.Height = 95.237365722656260000
         Size.PlatformDefault = False
         TextSettings.Font.Family = 'Trebuchet MS'
         TextSettings.Font.Size = 16.000000000000000000
@@ -895,7 +894,7 @@ object WHSOX: TWHSOX
         TabOrder = 0
         object GlowValue: TGlowEffect
           StyleName = 'GlowValue'
-          Softness = 0.400000005960464500
+          Softness = 0.400000005960464400
           GlowColor = claSkyblue
           Opacity = 0.600000023841857900
           Trigger = 'IsVisible=true'
@@ -914,7 +913,7 @@ object WHSOX: TWHSOX
         OnClick = btn_ResearchClick
         object GlowEffect1: TGlowEffect
           StyleName = 'GlowValue'
-          Softness = 0.400000005960464500
+          Softness = 0.400000005960464400
           GlowColor = claSkyblue
           Opacity = 0.600000023841857900
           Trigger = 'IsVisible=true'
@@ -965,7 +964,7 @@ object WHSOX: TWHSOX
       object Logo: TLabel
         Align = Client
         RotationCenter.X = 0.300000011920929000
-        RotationCenter.Y = 0.800000011920929000
+        RotationCenter.Y = 0.800000011920928900
         Size.Width = 209.000000000000000000
         Size.Height = 150.000000000000000000
         Size.PlatformDefault = False
