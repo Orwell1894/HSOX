@@ -14,7 +14,9 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf,
   FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
   FireDAC.Phys, FireDAC.FMXUI.Wait, Data.DB, FireDAC.Comp.Client, FMX.ScrollBox,
-  FMX.Memo, ceffmx, ceflib;
+  FMX.Memo, ceffmx, ceflib, FireDAC.FMXUI.Login, FireDAC.Stan.Param,
+  FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Phys.SQLiteVDataSet,
+  FireDAC.Comp.DataSet, FireDAC.Comp.UI;
   //, FMX.Platform.Android, Androidapi.Helpers, Androidapi.JNI.App;
 
 type
@@ -80,8 +82,6 @@ type
     Button1: TButton;
     MultiView1: TMultiView;
     GridPanelLayout4: TGridPanelLayout;
-    Label22: TLabel;
-    NumberBox3: TNumberBox;
     TabControl2: TTabControl;
     TabItem5: TTabItem;
     TabItem6: TTabItem;
@@ -112,6 +112,13 @@ type
     ChromiumFMX1: TChromiumFMX;
     TabItem8: TTabItem;
     Memo1: TMemo;
+    Label22: TLabel;
+    NumberBox3: TNumberBox;
+    FDGUIxLoginDialog1: TFDGUIxLoginDialog;
+    FDTable1: TFDTable;
+    FDQuery1: TFDQuery;
+    FDLocalSQL1: TFDLocalSQL;
+    FDTransaction1: TFDTransaction;
     procedure GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -137,7 +144,7 @@ function UnQuote(S: String): String;
 
 var
   WHSOX: TWHSOX;
-  RunLevel, CountLink, TimeLeft: Byte;
+  RunLevel, CountLink, TimeLeft, CurLinkIndex: Byte;
   Sox: TSocks;
 
 implementation
@@ -205,14 +212,6 @@ begin
 //  ChromiumFMX1.Load('https://google.com');
 end;
 
-procedure TWHSOX.ChromiumFMX1LoadEnd(Sender: TObject;
-  const browser: ICefBrowser; const frame: ICefFrame; httpStatusCode: Integer);
-Var  CefStringVisitor: ICefStringVisitor;
-begin
-  Loggy('Страница загружена, парсим ссылки');
-  CefStringVisitor := TCefFastStringVisitor.Create(StringVisitor);
-  WHSOX.ChromiumFMX1.Browser.MainFrame.GetSource(CefStringVisitor);
-end;
 
 procedure TWHSOX.FDConnection1BeforeConnect(Sender: TObject);
 var DBPath: string;
@@ -233,9 +232,20 @@ begin
   case RunLevel of
     0:  if not ParsedLinks then ParserLinks(str);
     1:  begin
-          ParseSox(str);
+          ParseSox(str, CurLinkIndex);
+          ParsingLink :=False;
     end;
   end;
+end;
+
+
+procedure TWHSOX.ChromiumFMX1LoadEnd(Sender: TObject;
+  const browser: ICefBrowser; const frame: ICefFrame; httpStatusCode: Integer);
+Var  CefStringVisitor: ICefStringVisitor;
+begin
+  Loggy('Страница загружена, парсим ссылки');
+  CefStringVisitor := TCefFastStringVisitor.Create(StringVisitor);
+  WHSOX.ChromiumFMX1.Browser.MainFrame.GetSource(CefStringVisitor);
 end;
 
 //Поток поиска сайтов с прокси и парсинг прокси на сайтах
@@ -246,7 +256,6 @@ begin
       begin
         While not ParsingLink do
           try
-            Loggy('Запущен поток парсинга сайтов с прокси');
             Sleep(1000);
             Case RunLevel of
                 //Уровень парсинга сайтов с прокси
@@ -272,10 +281,14 @@ begin
                             WHSOX.LabelBottom.Text :=TextL3;
                             For i:=0 to LogBox.Items.Count-1 do
                               begin
+                                Links[i] :=TLink.Create(nil);
                                 Loggy('Загрузка страницы');
+                                CurLinkIndex :=i;
                                 Loggy(LogBox.Items[i]);
-                                ParserSocksInLinks(i);
-                                Sleep(50);
+                                WHSOX.ChromiumFMX1.Load(LogBox.Items[i]);
+//                                ParserSocksInLinks(i);
+                                while ParsingLink do Sleep(500);
+                                If FindedSocks then break;
                               end;
                           end else ParsedLinks :=False;
                       end else inc(RunLevel);
@@ -285,6 +298,7 @@ begin
           except
           end;
     end).Start;
+  Loggy('Запущен поток парсинга сайтов с прокси');
 end;
 
 //Отчет времени поиска прокси и применение эффектов после того, как найден рабочий прокси

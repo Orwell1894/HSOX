@@ -922,6 +922,8 @@ object WHSOX: TWHSOX
     end
     object btn_exit: TSpeedButton
       Align = Center
+      Margins.Left = -20.000000000000000000
+      Margins.Top = -80.000000000000000000
       Size.Width = 48.000000000000000000
       Size.Height = 48.000000000000000000
       Size.PlatformDefault = False
@@ -969,6 +971,7 @@ object WHSOX: TWHSOX
         Size.Height = 150.000000000000000000
         Size.PlatformDefault = False
         StyleLookup = 'style_hsox'
+        TextSettings.HorzAlign = Center
         Text = 'ESoX'
         TabOrder = 6
       end
@@ -1021,6 +1024,7 @@ object WHSOX: TWHSOX
     Size.Width = 369.000000000000000000
     Size.Height = 495.000000000000000000
     Size.PlatformDefault = False
+    Visible = False
     TabOrder = 8
     object TabControl2: TTabControl
       Align = Client
@@ -1067,16 +1071,6 @@ object WHSOX: TWHSOX
               Value = 50.000000000000000000
             end>
           ControlCollection = <
-            item
-              Column = 0
-              Control = Label22
-              Row = 9
-            end
-            item
-              Column = 1
-              Control = NumberBox3
-              Row = 9
-            end
             item
               Column = 0
               Control = Label16
@@ -1126,6 +1120,16 @@ object WHSOX: TWHSOX
               Column = 1
               Control = ComboBox3
               Row = 4
+            end
+            item
+              Column = 0
+              Control = Label22
+              Row = 5
+            end
+            item
+              Column = 1
+              Control = NumberBox3
+              Row = 5
             end>
           RowCollection = <
             item
@@ -1171,34 +1175,6 @@ object WHSOX: TWHSOX
             item
               SizeStyle = Auto
             end>
-          object Label22: TLabel
-            Align = Client
-            Size.Width = 184.500000000000000000
-            Size.Height = 50.000000000000000000
-            Size.PlatformDefault = False
-            StyleLookup = 'labelstyle'
-            TextSettings.HorzAlign = Center
-            Text = #1050#1086#1083'-'#1074#1086' '#1087#1086#1090#1086#1082#1086#1074
-            TabOrder = 13
-          end
-          object NumberBox3: TNumberBox
-            Touch.InteractiveGestures = [LongTap, DoubleTap]
-            Align = Client
-            TabOrder = 18
-            Cursor = crIBeam
-            Min = 1.000000000000000000
-            Max = 4.000000000000000000
-            Value = 1.000000000000000000
-            TextSettings.HorzAlign = Center
-            Margins.Left = 5.000000000000000000
-            Margins.Top = 5.000000000000000000
-            Margins.Right = 5.000000000000000000
-            Margins.Bottom = 5.000000000000000000
-            Size.Width = 174.500000000000000000
-            Size.Height = 32.000000000000000000
-            Size.PlatformDefault = False
-            KillFocusByReturn = True
-          end
           object Label16: TLabel
             Align = Client
             Size.Width = 184.500000000000000000
@@ -1305,6 +1281,34 @@ object WHSOX: TWHSOX
             Size.Height = 32.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 23
+          end
+          object Label22: TLabel
+            Align = Client
+            Size.Width = 184.500000000000000000
+            Size.Height = 40.000000000000000000
+            Size.PlatformDefault = False
+            StyleLookup = 'labelstyle'
+            TextSettings.HorzAlign = Center
+            Text = #1050#1086#1083'-'#1074#1086' '#1087#1086#1090#1086#1082#1086#1074
+            TabOrder = 13
+          end
+          object NumberBox3: TNumberBox
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Align = Client
+            TabOrder = 18
+            Cursor = crIBeam
+            Min = 1.000000000000000000
+            Max = 4.000000000000000000
+            Value = 1.000000000000000000
+            TextSettings.HorzAlign = Center
+            Margins.Left = 5.000000000000000000
+            Margins.Top = 5.000000000000000000
+            Margins.Right = 5.000000000000000000
+            Margins.Bottom = 5.000000000000000000
+            Size.Width = 174.500000000000000000
+            Size.Height = 32.000000000000000000
+            Size.PlatformDefault = False
+            KillFocusByReturn = True
           end
         end
       end
@@ -1618,6 +1622,7 @@ object WHSOX: TWHSOX
           Size.Height = 446.000000000000000000
           Size.PlatformDefault = False
           OnLoadEnd = ChromiumFMX1LoadEnd
+          Options.ImageLoading = STATE_DISABLED
         end
       end
       object TabItem8: TTabItem
@@ -1663,8 +1668,40 @@ object WHSOX: TWHSOX
     end
   end
   object FDConnection1: TFDConnection
+    LoginDialog = FDGUIxLoginDialog1
     BeforeConnect = FDConnection1BeforeConnect
-    Left = 34
+    Left = 282
+    Top = 383
+  end
+  object FDGUIxLoginDialog1: TFDGUIxLoginDialog
+    Provider = 'FMX'
+    Left = 218
+    Top = 391
+  end
+  object FDTable1: TFDTable
+    LocalSQL = FDLocalSQL1
+    Connection = FDConnection1
+    Transaction = FDTransaction1
+    Left = 298
+    Top = 399
+  end
+  object FDQuery1: TFDQuery
+    Connection = FDConnection1
+    Left = 314
     Top = 415
+  end
+  object FDLocalSQL1: TFDLocalSQL
+    Connection = FDConnection1
+    DataSets = <
+      item
+        DataSet = FDTable1
+      end>
+    Left = 234
+    Top = 407
+  end
+  object FDTransaction1: TFDTransaction
+    Connection = FDConnection1
+    Left = 250
+    Top = 423
   end
 end

@@ -109,7 +109,7 @@ procedure LoadParam;
 procedure SaveParam;
 
 Var
-    Links: array[1..10] of TLink;//Сайты с прокси
+    Links: array[1..100] of TLink;//Сайты с прокси
     n_google: Integer = 0;//Номер страницы в поиске
     IndexLink: Integer = 0;//Номер текущего сайта с прокси в LinksWithSocks
     CountLinks: Integer = 0;//Кол-во сайтов с прокси
@@ -289,8 +289,8 @@ begin
           //Перемешиваем все прокси для рандомизации
           Links[IndexLink].SocksRandomize;
           Links[IndexLink].PosSearch :=0;
-          //Запускаем поток поиска прокси с сайта
-          CheckProxy(IndexLink);
+////          Запускаем поток поиска прокси с сайта
+//          CheckProxy(IndexLink);
           try
             WHSOX.LogBox.ItemByIndex(IndexLink).ItemData.Detail :=IntToStr(RMathes.Count);
           except
