@@ -10,8 +10,12 @@ uses
   System.Notification, FMX.Layouts, HSOXModule, FMX.ExtCtrls,
   FMX.Advertising, FMX.Edit, FMX.EditBox, FMX.NumberBox, FMX.ComboTrackBar,
   FMX.ComboEdit, FMX.SpinBox, FMX.MagnifierGlass, FMX.MultiView, FMX.Effects,
-  FMX.Filter.Effects, FMX.Objects, FMX.Styles.Objects, FMX.Ani, FMX.Colors,
-  FMX.ScrollBox, FMX.Memo;//, FMX.Platform.Android, Androidapi.Helpers, Androidapi.JNI.App;
+  FMX.Filter.Effects, FMX.Objects, FMX.Styles.Objects, FMX.Ani,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf,
+  FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
+  FireDAC.Phys, FireDAC.FMXUI.Wait, Data.DB, FireDAC.Comp.Client, FMX.ScrollBox,
+  FMX.Memo, ceffmx, ceflib;
+  //, FMX.Platform.Android, Androidapi.Helpers, Androidapi.JNI.App;
 
 type
   TWHSOX = class(TForm)
@@ -19,10 +23,6 @@ type
     ActionList1: TActionList;
     NextTabAction1: TNextTabAction;
     PreviousTabAction1: TPreviousTabAction;
-    StyleBook1: TStyleBook;
-    MultiView1: TMultiView;
-    Panel2: TPanel;
-    SpeedButton3: TSpeedButton;
     TabControl1: TTabControl;
     TabItem1: TTabItem;
     ToolBar1: TToolBar;
@@ -75,6 +75,43 @@ type
     InfoBox: TListBox;
     LabelBottom: TLabel;
     Timer1: TTimer;
+    FDConnection1: TFDConnection;
+    TabItem3: TTabItem;
+    Button1: TButton;
+    MultiView1: TMultiView;
+    GridPanelLayout4: TGridPanelLayout;
+    Label22: TLabel;
+    NumberBox3: TNumberBox;
+    TabControl2: TTabControl;
+    TabItem5: TTabItem;
+    TabItem6: TTabItem;
+    GridPanelLayout6: TGridPanelLayout;
+    Label13: TLabel;
+    SOX_Dalay: TNumberBox;
+    Label14: TLabel;
+    NumberBox1: TNumberBox;
+    Label17: TLabel;
+    GridPanelLayout5: TGridPanelLayout;
+    CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
+    CheckBox3: TCheckBox;
+    CheckBox4: TCheckBox;
+    Label19: TLabel;
+    NumberBox2: TNumberBox;
+    Label16: TLabel;
+    ComboBoxSearchSystems: TComboBox;
+    Label15: TLabel;
+    ComboBox2: TComboBox;
+    Label18: TLabel;
+    ComboBox4: TComboBox;
+    Label20: TLabel;
+    Switch1: TSwitch;
+    Label21: TLabel;
+    ComboBox3: TComboBox;
+    TabItem7: TTabItem;
+    ChromiumFMX1: TChromiumFMX;
+    TabItem8: TTabItem;
+    Memo1: TMemo;
     procedure GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -85,6 +122,10 @@ type
     procedure btn_exitClick(Sender: TObject);
     procedure btn_ResearchClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure FDConnection1BeforeConnect(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure ChromiumFMX1LoadEnd(Sender: TObject; const browser: ICefBrowser;
+      const frame: ICefFrame; httpStatusCode: Integer);
   private
     procedure StartParsing;
   public
@@ -92,6 +133,7 @@ type
   end;
 
 function UnQuote(S: String): String;
+//procedure VeiwSource1(const src: string);
 
 var
   WHSOX: TWHSOX;
@@ -102,23 +144,35 @@ implementation
 
 {$R *.fmx}
 
-//РЈР±РёСЂР°РµС‚ РєРѕРІС‹С‡РєРё
+procedure ViewSource1(const src: string);
+Var source: String;
+begin
+  source :=src;
+  WHSOX.Memo1.Lines.Add(source);
+end;
+
+//Убирает ковычки
 function UnQuote(S: String): String;
 begin
   Result :=Copy(S,2,Length(S)-2);
 end;
 
-//Р’С‹С…РѕРґ
+//Выход
 procedure TWHSOX.btn_exitClick(Sender: TObject);
 begin
+//  Chromium1.LoadURL('https://google.com');
+//  Chromium1.
+//  ChromiumFMX1.DefaultUrl :='https://google.com';
+//  ChromiumFMX1.Load('https://google.com');
+//  ChromiumFMX1.Visible :=True;
 //  {$IFDEF ANDROID}
 //  SharedActivity.finish;
 //  MainActivity.finish;
 //  {$ENDIF}
-  Close;
+//  Close;
 end;
 
-//РџСЂРѕРґРѕР»Р¶РµРЅРёРµ РїРѕРёСЃРєР°
+//Продолжение поиска
 procedure TWHSOX.btn_ResearchClick(Sender: TObject);
 Var i: Word;
 begin
@@ -129,8 +183,8 @@ begin
   Logo.Visible :=True;
   FindedSocks :=False;
   TimeLeft :=20;
-  ProgressValue.Text:=('РїСЂРёР±Р»РёР·РёС‚РµР»СЊРЅРѕРµ РІСЂРµРјСЏ РїРѕРёСЃРєР° РЅРѕСЃРєР° '+IntToStr(TimeLeft)+' СЃРµРєСѓРЅРґ');
-  LabelBottom.Text :='РџРѕРёСЃРє РЅРѕСЃРєР° РїСЂРѕРґРѕР»Р¶Р°РµС‚СЃСЏ ...';
+  ProgressValue.Text:=('Идет поиск прокси для соединения...');
+  LabelBottom.Text :='Идет поиск прокси для соединения...';
   Timer1.Enabled :=True;
   For i:=0 to LogBox.Items.Count-1 do
     if LogBox.ItemByIndex(i).Visible then
@@ -140,11 +194,51 @@ begin
       end;
 end;
 
+procedure TWHSOX.Button1Click(Sender: TObject);
+begin
+//  ChromiumFMX1.Load('https://google.com');
+end;
+
+procedure StringVisitor(const str: ustring);
+begin
+  //str is the SourceHtml
+  if not ParsedLinks then
+    begin
+      ParserLinks(str);
+    end;
+
+//  WHSOX.Memo1.Lines.Clear;
+//  WHSox.Memo1.Lines.Add(str)
+end;
+
+procedure TWHSOX.ChromiumFMX1LoadEnd(Sender: TObject;
+  const browser: ICefBrowser; const frame: ICefFrame; httpStatusCode: Integer);
+Var  CefStringVisitor: ICefStringVisitor;
+begin
+  CefStringVisitor := TCefFastStringVisitor.Create(StringVisitor);
+  WHSOX.ChromiumFMX1.Browser.MainFrame.GetSource(CefStringVisitor);
+//  Memo1.Lines.Add()
+end;
+
+procedure TWHSOX.FDConnection1BeforeConnect(Sender: TObject);
+var DBPath: string;
+begin
+  {$IFDEF ANDROID}
+//     DBPath:=TPath.GetSharedDocumentsPath + PathDelim + 'lbase.db';
+  {$ELSE}
+     DBPath:='d:\test\lbase.db';
+  {$ENDIF}
+//  if TFile.Exists(DBPath) then
+//    ShowMessage('File exist') else
+//    ShowMessage('File not exist');
+  FDConnection1.Params.Values['Database']:= DBPath;
+end;
+
 procedure TWHSOX.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
 end;
 
-//РџРѕС‚РѕРє РїРѕРёСЃРєР° СЃР°Р№С‚РѕРІ СЃ РїСЂРѕРєСЃРё Рё РїР°СЂСЃРёРЅРі РїСЂРѕРєСЃРё РЅР° СЃР°Р№С‚Р°С…
+//Поток поиска сайтов с прокси и парсинг прокси на сайтах
 procedure TWHSOX.StartParsing;
 begin
   TThread.CreateAnonymousThread(procedure
@@ -154,19 +248,25 @@ begin
           try
             Sleep(1000);
             Case RunLevel of
-                //РЈСЂРѕРІРµРЅСЊ РїР°СЂСЃРёРЅРіР° СЃР°Р№С‚РѕРІ СЃ РїСЂРѕРєСЃРё
+                //Уровень парсинга сайтов с прокси
                 0:  try
-                      If not ParsedLinks then If not ParsingLinks then ParserLinks
-                        else else inc(RunLevel);
+                      If not ParsedLinks then If not ParsingLinks then
+                        try
+                          ParsingLinks :=True;
+                          ChromiumFMX1.Load('https://duckduckgo.com/?q=free+socks+5+proxy&t=h_&ia=web0')
+                        finally
+                        end
+                      else else inc(RunLevel);
                     except
                     end;
-                //РЈСЂРѕРІРµРЅСЊ РїР°СЂСЃРёРЅРіР° РїСЂРѕРєСЃРё СЃ СЃР°Р№С‚РѕРІ
-                1:  try
+                //Уровень парсинга прокси с сайтов
+                2:  try
                     If not ParsedLink then
                       begin
                         If LogBox.Items.Count>0 then
                           begin
                             ParsingLink :=True;
+                            WHSOX.LabelBottom.Text :=TextL3;
                             For i:=0 to LogBox.Items.Count-1 do
                               begin
                                 ParserSocksInLinks(i);
@@ -182,7 +282,7 @@ begin
     end).Start;
 end;
 
-//РћС‚С‡РµС‚ РІСЂРµРјРµРЅРё РїРѕРёСЃРєР° РїСЂРѕРєСЃРё Рё РїСЂРёРјРµРЅРµРЅРёРµ СЌС„С„РµРєС‚РѕРІ РїРѕСЃР»Рµ С‚РѕРіРѕ, РєР°Рє РЅР°Р№РґРµРЅ СЂР°Р±РѕС‡РёР№ РїСЂРѕРєСЃРё
+//Отчет времени поиска прокси и применение эффектов после того, как найден рабочий прокси
 procedure TWHSOX.Timer1Timer(Sender: TObject);
 Var i: Word;
     Svc: IFMXClipboardService;
@@ -191,9 +291,7 @@ Var i: Word;
 begin
   If not FindedSocks then
     begin
-      dec(TimeLeft);
-      if TimeLeft=0 then inc(TimeLeft,10);
-      ProgressValue.Text:=('РїСЂРёР±Р»РёР·РёС‚РµР»СЊРЅРѕРµ РІСЂРµРјСЏ РїРѕРёСЃРєР° РЅРѕСЃРєР° '+IntToStr(TimeLeft)+' СЃРµРєСѓРЅРґ');
+      inc(TimeLeft);
       LogBox.UpdateEffects;
       LogBox.Repaint;
     end else
@@ -204,8 +302,8 @@ begin
       S :=Sox.IP+':'+Sox.PORT;
       If TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, Svc) then
         Svc.SetClipboard(S);
-      ProgressValue.Text :='РЅРѕСЃРѕРє С‚РёРїР° '+Sox.STYPE+' СЃРєРѕРїРёСЂРѕРІР°РЅ РІ Р±СѓС„С„РµСЂ РѕР±РјРµРЅР° !';
-      LabelBottom.Text :='Р±СѓС„С„РµСЂ РѕР±РјРµРЅР°: '+Sox.IP+':'+Sox.PORT+' ('+Sox.STYPE+')';
+      ProgressValue.Text :=TextL6;
+      LabelBottom.Text :=TextL6;
       R.RMathes :=R.RegEx.Matches(Sox.PAGE, RE_GL_INFO);
       InfoBox.Items.Clear;
       If R.RMathes.Count>0 then
@@ -227,7 +325,7 @@ begin
     end;
 end;
 
-//РЎРѕР·РґР°РЅРёРµ С„РѕСЂРјС‹
+//Создание формы
 procedure TWHSOX.FormCreate(Sender: TObject);
 Var i: Word;
 begin
@@ -237,6 +335,8 @@ begin
   ParsedLink :=False; ParsingLink :=False;
   FindedSocks :=False; FindingSocks :=False;
   StartParsing;
+  ProgressValue.Text:=('Идет поиск прокси для соединения...');
+  LabelBottom.Text :='Идет поиск прокси для соединения...';
   ProgressVision.Enabled :=True;
 end;
 
@@ -285,6 +385,7 @@ begin
 //  Panel2.Visible :=True;
 //  MultiView1.Size.Width :=330;
 //  MultiView1.MasterButton :=SpeedButton3;
+
 end;
 
 end.

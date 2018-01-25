@@ -1,5 +1,5 @@
 ﻿[]
-Coordinates=621,355,54,36
+Coordinates=209,412,77,36
 Visible=False
 LayerNames=Panel_mid
 ExplicitSubNodes=Hint
@@ -21,10 +21,6 @@ ModelLayerNames=Panel_mid
 ActiveLayerNames=Panel_mid
 EditingLayerName=Panel_mid
 
-[StyleBook1]
-Coordinates=380,556,79,36
-Visible=False
-
 [ListBox1]
 Coordinates=10,10,116,213
 
@@ -34,13 +30,4 @@ Coordinates=76,233,97,51
 [PrototypeBindSource1]
 Coordinates=450,100,125,33
 Visible=False
-
-[MultiView1]
-Coordinates=209,412,77,36
-
-[Panel2]
-Coordinates=145,412,54,36
-
-[SpeedButton3]
-Coordinates=481,10,96,58
 

@@ -1,33 +1,47 @@
 unit HSOXModule;
 
+//      FIRST THINGS FIRST
+//Установка прокси в TOR
+//Возможность пропускать весь трафик системы через тор или через прокси
+//Смена времени под поиск прокси
+//Смена времени диапазона проверки прокси на работоспособность
+//Установка кастомного прокси (Socks4-5,HTTPS,SSH)
+//Добавление приоритетного сайта и приоритетного поисковика для парсинга прокси
+//Модифицировать запрос в google для поиска сайтов с прокси
+//Возможность менять дизайн (Classic, Dark, Light)
+//Добавить возможность выбора страны
+//Выбор пинга до прокси
+
 interface
 
 uses
     System.Classes, System.Variants, System.SysUtils,
     idHTTP, IdSSL, IdSSLOpenSSL, IdCookieManager,
     IdCustomTransparentProxy, IdSocks, IdTCPClient,
-    SyncObjs, RegularExpressions;
+    SyncObjs, RegularExpressions, ceffmx, ceflib;
 
-//Р РµРіСѓР»СЏСЂРЅС‹Рµ Р’С‹СЂР°Р¶РµРЅРёСЏ РґР»СЏ РїРѕРёСЃРєР°
+//Регулярные Выражения для поиска
 Const
   RE_GL2 = '(?ism-x)(<h3)(.*?)((http|https)(.*?)(?=&amp;))';
+  RE_SS_DUCK = '(?ism-x)(<a class="result__url" rel="noopener" href=")(.*?)(?=")';
+  RE_SS_DUCK2 = '(?ism-x)(http|https)(.*?)$';
   RE_GL5 = '(http|https)(.*)\w';
   RE_GL4 = '(?ism-x)(([0-9]{1,3}\.){3}([0-9]{1,3}))(.*?)((\d){2,5})';
   RE_GL_IP = '(?ism-x)(([0-9]{1,3}\.){3}([0-9]{1,3}))';
   RE_GL_PORT = '(?sim-x)[0-9]{2,5}$';
   RE_GL_INFO = '(?sim-x)"(.*?)"';
 
-//РЈРІРµРґРѕРјР»РµРЅРёСЏ
+//Уведомления
 Const
-  TextL1 = 'РџСЂРѕРІРµСЂСЏРµРј РґРѕСЃС‚СѓРї РІ РёРЅС‚СЂРµРЅРµС‚';
-  TextL2 = 'РџРѕР»СѓС‡Р°РµРј СЃРїРёСЃРѕРє СЃР°Р№С‚РѕРІ СЃ РЅРѕСЃРєР°РјРё';
-  TextL3 = 'РЎРѕР±РёСЂР°РµРј РџСЂРѕРєСЃРё';
-  TextL4 = 'РџСЂРѕРІРµСЂСЏРµРј РџСЂРѕРєСЃРё';
-  TextL5 = 'РќР°Р№РґРµРЅ СЂР°Р±РѕС‡РёР№ РџСЂРѕРєСЃРё';
-  TextL6 = 'РџСЂРѕРєСЃРё РЎРєРѕРїРёСЂРѕРІР°РЅ !';
+  TextL1 = 'Проверяем доступ в интернет...';
+  TextL2 = 'Получаем список сайтов с прокси...';
+  TextL3 = 'Собираем прокси...';
+  TextL4 = 'Проверяем прокси на работу...';
+  TextL5 = 'Рабочий прокси найден';
+  TextL6 = 'Прокси скопирован в буффер обмена';
 
 
-//РЎС‚СЂРѕРєР° РїРѕРёСЃРєР° РїРѕ РЅРѕСЃРєР°Рј Рё СЃР°Р№С‚С‹ РїСЂРѕРІРµСЂРєРё
+//Строка поиска по носкам и сайты проверки
 Const google_search = 'https://www.google.com/search?q=free+socks5+proxy&start=';
       check_url1 = 'https://google.com';
       check_url2 = 'check2ip.com';
@@ -36,7 +50,7 @@ Const google_search = 'https://www.google.com/search?q=free+socks5+proxy&start='
       check_url5 = 'https://www.iplocation.net/';
       check_url6 = 'https://www.ip2location.com/';
 
-//РўРёРї СЂРµРіСѓР»СЏСЂРЅС‹С… РІС‹СЂР°Р¶РµРЅРёР№
+//Тип регулярных выражений
 type TRegExp = record
   RegEx: TRegEx;
   Option: TRegExOptions;
@@ -45,7 +59,7 @@ type TRegExp = record
   RMathes: TMatchCollection;
 end;
 
-//РџР°СЂСЃРµСЂ РЅР° РѕСЃРЅРѕРІРµ Indy
+//Парсер на основе Indy
 type TParser = Class(TObject)
   var
     FHTTP: TIdHTTP;
@@ -57,7 +71,7 @@ type TParser = Class(TObject)
   function AsHTML(Url: String): String;
 end;
 
-//РўРёРї РџСЂРѕРєСЃРё
+//Тип Прокси
 type TSocks = record
   ID: Integer;
   IP, PORT, STYPE, LOGIN, PASSW, STATUS, PAGE: String;
@@ -66,7 +80,7 @@ type TSocks = record
   function InStrings: TStrings;
 end;
 
-//РћР±СЉРµРє СЃР°Р№С‚ СЃ РїСЂРѕРєСЃРё
+//Объек сайт с прокси
 type TLink = Class(TObject)
   public
     Url: String;
@@ -80,37 +94,37 @@ type TLink = Class(TObject)
     Destructor Destroy; override;
 End;
 
-//Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃС‚СЂРѕРєСѓ СЃ СѓСЂРѕРІРЅРµРј РґРёСЂРµРєС‚РѕСЂРёРё РІС‹С€Рµ
+//Возвращает строку с уровнем директории выше
 function UpDir(S: String; level: byte=1): String;
-//Р—Р°РїСѓСЃРєР°РµРј РїРѕС‚РѕРє РїРѕРёСЃРєР° СЃР°Р№С‚РѕРІ СЃ РїСЂРѕРєСЃРё
-procedure ParserLinks;
-//Р—Р°РїСѓСЃРє РїРѕС‚РѕРєР° РїРѕРёСЃРєР° РїСЂРѕРєСЃРµР№ РЅР° СЃР°Р№С‚Рµ
+//Запускаем поток поиска сайтов с прокси
+procedure ParserLinks(Page : String);
+//Запуск потока поиска проксей на сайте
 procedure ParserSocksInLinks(IndexLink: Word);
-//Р—Р°РїСѓСЃРє РїРѕС‚РѕРєР° РїСЂРѕРІРµСЂРєРё РїСЂРѕРєСЃРµР№ СЃ СЃР°Р№С‚Р°
+//Запуск потока проверки проксей с сайта
 procedure CheckProxy(LinkIndex: Integer);
-//Р—Р°РіСЂСѓР¶Р°РµРј РЅР°СЃС‚СЂРѕР№РєРё РёР· param.qtr
+//Загружаем настройки из param.qtr
 procedure LoadParam;
-//РЎРѕС…СЂР°РЅСЏРµРј РЅР°СЃС‚СЂРѕР№РєРё РІ param.qtr
+//Сохраняем настройки в param.qtr
 procedure SaveParam;
 
 Var
-    Links: array[1..10] of TLink;//РЎР°Р№С‚С‹ СЃ РїСЂРѕРєСЃРё
-    n_google: Integer = 0;//РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ РІ РїРѕРёСЃРєРµ
-    IndexLink: Integer = 0;//РќРѕРјРµСЂ С‚РµРєСѓС‰РµРіРѕ СЃР°Р№С‚Р° СЃ РїСЂРѕРєСЃРё РІ LinksWithSocks
-    CountLinks: Integer = 0;//РљРѕР»-РІРѕ СЃР°Р№С‚РѕРІ СЃ РїСЂРѕРєСЃРё
+    Links: array[1..10] of TLink;//Сайты с прокси
+    n_google: Integer = 0;//Номер страницы в поиске
+    IndexLink: Integer = 0;//Номер текущего сайта с прокси в LinksWithSocks
+    CountLinks: Integer = 0;//Кол-во сайтов с прокси
     ParsedLinks, ParsingLinks, ParsedLink, FindingSocks, FindTorDir,
-    ParsingLink, FindedSocks: Boolean;//Р›РѕРіРёС‡РµСЃРєРёРµ РїРµСЂРµРјРµРЅРЅС‹Рµ СЃРѕСЃС‚РѕСЏРЅРёР№ РїРѕС‚РѕРєРѕРІ
+    ParsingLink, FindedSocks: Boolean;//Логические переменные состояний потоков
     UrlInCheck, Inc_Word: String;
-    Socks: TSocks;//Р Р°Р±РѕС‡РёР№ РЅРѕСЃРѕРє
+    Socks: TSocks;//Рабочий носок
 
 implementation
 uses HSOXUnit;
 
-//Р—Р°РїСѓСЃРє РїРѕС‚РѕРєР° РїРѕРёСЃРєР° РїСЂРѕРєСЃРё СЃ СЃР°Р№С‚Р°
+//Запуск потока поиска прокси с сайта
 procedure CheckProxy(LinkIndex: Integer);
 begin
   FindingSocks :=True;
-  //РЎРѕР·РґР°РµРј РїРѕС‚РѕРє РїСЂРѕРІРµСЂРєРё РїСЂРѕРєСЃРё СЃ СЃР°Р№С‚Р°
+  //Создаем поток проверки прокси с сайта
   TThread.CreateAnonymousThread(procedure
         Var SocksInfo: TIdSocksInfo;
         Resp,Old_IP,S,dS: String;
@@ -120,17 +134,17 @@ begin
         SParser: TParser;
         Socks: TSocks;
     begin
-      //Р¦РёРєР» РѕС‚ РїРѕР·РёС†РёРё РїРѕРёСЃРєР° (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 0) РґРѕ РєРѕРЅС†Р° СЃРїРёСЃРєР° СЃ РїСЂРѕРєСЃРё
+      //Цикл от позиции поиска (по умолчанию 0) до конца списка с прокси
       For IndexSocks :=Links[LinkIndex].PosSearch to Length(Links[LinkIndex].Sockses)-1 do
-      //Р•СЃР»Рё СЂР°Р±РѕС‡РёР№ РїСЂРѕРєСЃРё РЅРµ РЅР°Р№РґРµРЅ
+      //Если рабочий прокси не найден
       if not FindedSocks then try
-        //РЈРІРµР»РёС‡РёРІР°РµРј РїРѕР·РёС†РёСЋ
+        //Увеличиваем позицию
         Links[LinkIndex].PosSearch :=IndexSocks+1;
         SParser :=TParser.Create;
         Live :=False;
         Socks :=Links[LinkIndex].Sockses[IndexSocks];
         try
-          WHSOX.LabelBottom.Text :='РїСЂРѕРІРµСЂРєР° РЅРѕСЃРєР° '+Links[LinkIndex].Sockses[IndexSocks].IP
+          WHSOX.LabelBottom.Text :='проверка работоспособности прокси '+Links[LinkIndex].Sockses[IndexSocks].IP
           +':'+Links[LinkIndex].Sockses[IndexSocks].PORT+' ...';
         except
         end;
@@ -218,7 +232,7 @@ begin
               SocksInfo.Free;
             except
             end;
-        //РЈРІРµР»РёС‡РёРІР°РµС‚ РєРѕР»-РІРѕ РїСЂРѕРІРµСЂРµРЅС‹С… РїСЂРѕРєСЃРё Сѓ СЃР°Р№С‚Р° РІ СЃРїРёСЃРєРµ
+        //Увеличивает кол-во провереных прокси у сайта в списке
         try
           S :=WHSOX.LogBox.ItemByIndex(LinkIndex).ItemData.Detail;
           dS :=Copy(S,Pos('/',S)+1,Length(S)-Pos('/',S));
@@ -235,7 +249,7 @@ begin
               Sox :=Links[LinkIndex].Sockses[IndexSocks];
               FindedSocks :=True;
               try
-                WHSOX.LabelBottom.Text :='РЅР°Р№РґРµРЅ Р¶РёРІРѕР№ РЅРѕСЃРѕРє '+Sox.IP+':'+Sox.PORT+' !';;
+                WHSOX.LabelBottom.Text :='найден живой носок '+Sox.IP+':'+Sox.PORT+' !';;
                 WHSOX.LogBox.ItemByIndex(LinkIndex).IsSelected :=True;
               except
               end;
@@ -250,7 +264,7 @@ begin
     end).Start;
 end;
 
-//Р—Р°РїСѓСЃРє РїРѕС‚РѕРєР° РїРѕРёСЃРєР° РїСЂРѕРєСЃРµР№ РЅР° С‚РµРєСѓС‰РµРј СЃР°Р№С‚Рµ
+//Запуск потока поиска проксей на текущем сайте
 procedure ParserSocksInLinks(IndexLink: Word);
 begin
   TThread.CreateAnonymousThread(procedure
@@ -263,34 +277,30 @@ begin
       With R do
         try
           RMathes :=RegEx.Matches(Parser.AsHTML(WHSOX.LogBox.Items[IndexLink]),RE_GL4);
-          try
-            WHSOX.LabelBottom.Text :='РїР°СЂСЃРёРј РЅРѕСЃРєРё СЃ "'+WHSOX.LogBox.Items[IndexLink]+'" ...';
-          except
-          end;
           if RMathes.Count>0 then
             begin
-              //РЈРІРµР»РёС‡РёРІР°РµРј РєРѕР»-РІРѕ СЂР°Р±РѕС‡РёС… СЃСЃС‹Р»РѕРє
+              //Увеличиваем кол-во рабочих ссылок
               inc(CountLinks);
               Links[IndexLink].CountSocks :=RMathes.Count;
               j :=Round((RMathes.Count div 5)*5-1);
-              //РџР°СЂСЃРёРј РЅРѕСЃРєРё СЃ СЃСЃС‹Р»РєРё
+              //Парсим носки с ссылки
               For i:=0 to j do
                 begin
                   dSocks.IP :=RegEx.Match(RMathes[i].Value,RE_GL_IP).Value;
                   dSocks.PORT :=RegEx.Match(RMathes[i].Value,RE_GL_PORT).Value;
                   Links[IndexLink].AddS(dSocks.IP, dSocks.PORT);
                 end;
-              //РџРµСЂРµРјРµС€РёРІР°РµРј РІСЃРµ РїСЂРѕРєСЃРё РґР»СЏ СЂР°РЅРґРѕРјРёР·Р°С†РёРё
+              //Перемешиваем все прокси для рандомизации
               Links[IndexLink].SocksRandomize;
               Links[IndexLink].PosSearch :=0;
-              //Р—Р°РїСѓСЃРєР°РµРј РїРѕС‚РѕРє РїРѕРёСЃРєР° РїСЂРѕРєСЃРё СЃ СЃР°Р№С‚Р°
+              //Запускаем поток поиска прокси с сайта
               CheckProxy(IndexLink);
               try
                 WHSOX.LogBox.ItemByIndex(IndexLink).ItemData.Detail :='0/'+IntToStr(RMathes.Count);
               except
               end;
             end else try
-              //РЎРєСЂС‹РІР°РµРј СЃР°Р№С‚, РµСЃР»Рё РїСЂРѕРєСЃРё РЅРµ РЅР°Р№РґРµРЅС‹
+              //Скрываем сайт, если прокси не найдены
               WHSOX.LogBox.ItemByIndex(IndexLink).Visible :=False;
             except
             end;
@@ -302,41 +312,85 @@ begin
     end).Start;
 end;
 
-//Р—Р°РїСѓСЃРєР°РµРј РїРѕС‚РѕРє РїРѕРёСЃРєР° СЃР°Р№С‚РѕРІ СЃ РїСЂРѕРєСЃРё
-procedure ParserLinks;
+procedure StringVisitor(const str: ustring);
+begin
+  //str is the SourceHtml
+  WHSOX.Memo1.Lines.Clear;
+  WHSox.Memo1.Lines.Add(str)
+end;
+
+function GetSourceHTML: string;
+var
+CefStringVisitor:ICefStringVisitor;
+begin
+  CefStringVisitor := TCefFastStringVisitor.Create(StringVisitor);
+  WHSox.ChromiumFMX1.Browser.MainFrame.GetSource(CefStringVisitor);
+end;
+
+//Запускаем поток поиска сайтов с прокси
+procedure ParserLinks(Page: String);
 begin
   ParsingLinks :=True;
   TThread.CreateAnonymousThread(procedure
     Var i: Word;
         dS: String;
         R: TRegExp;
+        SS: TStrings;
         Parser: TParser;
+        CefStringVisitor:ICefStringVisitor;
     begin
       Parser :=TParser.Create;
       With R do
         try
-          RMathes :=RegEx.Matches(Parser.AsHTML(google_search+IntToStr(n_google)),RE_GL2);
-          WHSOX.LogBox.BeginUpdate;
-          WHSOX.LabelBottom.Text :='РїР°СЂСЃРёРј РѕС‚РІРµС‚ РЅР° Р·Р°РїСЂРѕСЃ "google - proxy free socks5" ...';
-          For i:=0 to RMathes.Count-1 do
-            begin
-              dS :=RMathes.Item[i].Value;
-              Links[i+1].Url :=RegEx.Match(dS,(RE_GL5)).Value;
-              WHSOX.LogBox.Items.Add(Links[i+1].Url);
-              WHSOX.LogBox.ItemByIndex(WHSOX.LogBox.Items.Count-1).ItemData.Detail :='.../...';
+//          WHSOX.ChromiumFMX1.Load('https://duckduckgo.com/?q=free+socks+5+proxy&t=h_&ia=web0');
+//          While WHSOX.ChromiumFMX1.Browser.IsLoading do Sleep(250);
+//          CefStringVisitor := TCefFastStringVisitor.Create(StringVisitor);
+//          WHSOX.ChromiumFMX1.onl
+//          WHSOX.ChromiumFMX1.Browser.MainFrame.GetSource(CefStringVisitor);
+//          dS :=Parser.AsHTML('https://duckduckgo.com/?q=free+socks+5+proxy&t=h_&ia=web0');
+//          SS :=TStringList.Create;
+//          SS.Add(dS);
+//          SS.SaveToFile('C:\Users\John\Documents\Embarcadero\Studio\Projects\qtor_m\Win32\Debug\test.txt');
+//          SS.Free;
+//          dS :=Parser.AsHTML('https://www.google.com/search?q=free+socks5+proxy&oq=free+socks5+proxy');
+          case WHSOX.ComboBoxSearchSystems.ItemIndex of
+            -1,0 :  begin
+                      RMathes :=RegEx.Matches(Page,RE_SS_DUCK);
+                      if RMathes.Count>0 then
+                        begin
+                          For i:=0 to RMathes.Count-1 do
+                          begin
+                            dS :=RMathes.Item[i].Value;
+  //                          Links[i+1].Url :=RegEx.Match(dS, RE_SS_DUCK2).Value;
+                            WHSOX.LogBox.Items.Add(RegEx.Match(dS, RE_SS_DUCK2).Value);
+  //                          WHSOX.LogBox.ItemByIndex(WHSOX.LogBox.Items.Count-1).ItemData.Detail :='.../...';
+                          end;
+                          WHSOX.Memo1.Lines.Add('links parsed from duckduckgo.com');
+                        end else WHSOX.Memo1.Lines.Add('links not parsed from duckduckgo.com');
             end;
-          WHSOX.LogBox.EndUpdate;
-          WHSOX.LogBox.UpdateEffects;
+          end;
+
+//          WHSOX.LogBox.BeginUpdate;
+//          WHSOX.LabelBottom.Text :=TextL3;
+//          For i:=0 to RMathes.Count-1 do
+//            begin
+//              dS :=RMathes.Item[i].Value;
+//              Links[i+1].Url :=RegEx.Match(dS,(RE_GL5)).Value;
+//              WHSOX.LogBox.Items.Add(Links[i+1].Url);
+//              WHSOX.LogBox.ItemByIndex(WHSOX.LogBox.Items.Count-1).ItemData.Detail :='.../...';
+//            end;
+//          WHSOX.LogBox.EndUpdate;
+//          WHSOX.LogBox.UpdateEffects;
         except
         end;
-      inc(n_google);
+//      inc(n_google);
       Parser.Free;
       ParsedLinks :=True;
       ParsingLinks :=False;
     end).Start;
 end;
 
-//Р—Р°РіСЂСѓР¶Р°РµРј РЅР°СЃС‚СЂРѕР№РєРё РёР· param.qtr
+//Загружаем настройки из param.qtr
 procedure LoadParam;
 Var S: TStrings;
 begin
@@ -359,7 +413,7 @@ begin
     end;
 end;
 
-//РЎРѕС…СЂР°РЅСЏРµРј РЅР°СЃС‚СЂРѕР№РєРё РІ param.qtr
+//Сохраняем настройки в param.qtr
 procedure SaveParam;
 Var S: TStrings;
 begin
@@ -373,7 +427,7 @@ begin
   S.SaveToFile('param.qtr');
 end;
 
-//Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃС‚СЂРѕРєСѓ СЃ СѓСЂРѕРІРЅРµРј РґРёСЂРµРєС‚РѕСЂРёРё РІС‹С€Рµ
+//Возвращает строку с уровнем директории выше
 function UpDir(S: String; level: byte=1): String;
 Var i,j: byte;
 begin
@@ -416,7 +470,7 @@ begin
   FSSL.Free;
   inherited;
 end;
-//РџРѕР»СѓС‡Р°РµРј РѕС‚РІРµС‚ РїРѕ Url Р·Р°РїСЂРѕСЃСѓ РІ String
+//Получаем ответ по Url запросу в String
 function TParser.AsHTML(Url: string): String;
 begin
   try
@@ -427,7 +481,7 @@ begin
 end;
 
 { TSocks }
-//РџСЂРµРґСЃС‚Р°РІР»СЏРµРј РїСЂРѕРєСЃРё РІ РІРёРґРµ СЃС‚СЂРѕРєРё РґР»СЏ Р·Р°РїРёСЃРё РІ torrc
+//Представляем прокси в виде строки для записи в torrc
 function TSocks.InStrings;
 begin
   Result :=TStringList.Create;
@@ -460,7 +514,7 @@ destructor TLink.Destroy;
 begin
   SetLength(Sockses,0);
 end;
-//Р”РѕР±Р°РІР»СЏРµРј Р·Р°РїРёСЃСЊ РїСЂРѕРєСЃРё РІ РјР°СЃСЃРёРІ СЃ РїСЂРѕРєСЃРё
+//Добавляем запись прокси в массив с прокси
 procedure TLink.AddS(IP,PORT: String; STYPE: String=''; LOGIN: String=''; PASSW: String='');
 begin
   SetLength(Sockses, Length(Sockses)+1);
@@ -478,7 +532,7 @@ begin
   Sockses[Length(Sockses)-1].STYPE :=Socks.STYPE;
   Sockses[Length(Sockses)-1].LOGIN :=Socks.LOGIN;
 end;
-//РЈРґР°Р»СЏРµРј РїСЂРѕРєСЃРё РёР· СЃСЃС‹Р»РєРё
+//Удаляем прокси из ссылки
 procedure TLink.DelS;
 Var i: Integer;
 begin
@@ -489,7 +543,7 @@ begin
       SetLength(Sockses,Length(Sockses)-1);
     end else SetLength(Sockses,0);
 end;
-//РџРµСЂРµРјРµС€РёРІР°РЅРёРµ РїСЂРѕРєСЃРё, СЂР°РЅРґРѕРјРёР·Р°С†РёСЏ
+//Перемешивание прокси, рандомизация
 procedure TLink.SocksRandomize;
 Var i,j,x: Word;
     dSocks: TSocks;
